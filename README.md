@@ -74,6 +74,7 @@ Here’s a more concise and well-formatted version for your GitHub README:
 ### Notes
 
 * **Ball prediction:** Not supported. If your observation uses ball prediction, modify `rlbotmain.cpp` and pass a RocketSimArena to it. This is straightforward.
+
 * **Padded observations:** Likely supported. To use, change:
 
 ```cpp
