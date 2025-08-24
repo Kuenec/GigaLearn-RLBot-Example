@@ -68,3 +68,24 @@ checkpointPath = "C:\\Users\\YourUser\\GigaLearnCPP\\build\\Release\\checkpoints
 
 * **Bot doesn't appear in RLBot?**
     * Double-check that the `cpp_executable_path` in `CppPythonAgent.cfg` is absolutely correct and points to the `.exe` file you compiled.
+
+Here’s a more concise and well-formatted version for your GitHub README:
+
+### Notes
+
+* **Ball prediction:** Not supported. If your observation uses ball prediction, modify `rlbotmain.cpp` and pass a RocketSimArena to it. This is straightforward.
+* **Padded observations:** Likely supported. To use, change:
+
+```cpp
+auto obsBuilder = std::make_unique<AdvancedObs>();
+```
+
+to
+
+```cpp
+auto obsBuilder = std::make_unique<YourObsNamePadded>(3);
+```
+
+Replace `3` with the value used during training.
+
+
