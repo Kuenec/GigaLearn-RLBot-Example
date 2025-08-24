@@ -67,9 +67,10 @@ checkpointPath = "C:\\Users\\YourUser\\GigaLearnCPP\\build\\Release\\checkpoints
 ## Troubleshooting
 
 * **Bot doesn't appear in RLBot?**
-    * Double-check that the `cpp_executable_path` in `CppPythonAgent.cfg` is absolutely correct and points to the `.exe` file you compiled.
+    * Double-check that the `cpp_executable_path` in `CppPythonAgent.cfg` is absolutely correct and points to the `rlbot.exe` file you compiled.
 
-Here’s a more concise and well-formatted version for your GitHub README:
+* **Could not connect to server?**
+    * Ensure CppPythonAgent.cfg correctly points to your compiled `rlbot.exe`, and that the port numbers in `rlbotmain.cpp` match the one in `GigaLearnCPP\rlbot\port.cfg`
 
 ### Notes
 
