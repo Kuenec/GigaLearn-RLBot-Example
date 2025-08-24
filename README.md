@@ -34,13 +34,13 @@ You will need to replace files in your `GigaLearnCPP` directory to integrate the
     You **must** edit `CppPythonAgent.cfg` to point to your compiled bot's executable.
     1.  Open `GigaLearnCPP\rlbot\CppPythonAgent.cfg`.
     2.  Find the line `cpp_executable_path = `.
-    3.  Add the full path to your compiled `.exe` file.
+    3.  Add the full path to your compiled `rlbot.exe` file.
 
     **Example:**
     ```ini
     [Locations]
     # Path to the C++ executable
-    cpp_executable_path = C:\path\to\your\GigaLearnCPP\build\Release\GigaLearnCPP.exe
+    cpp_executable_path = C:\path\to\your\GigaLearnCPP\build\Release\rlbot.exe
     ```
 
 ## How to Run
