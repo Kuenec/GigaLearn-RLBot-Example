@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8) # Consider updating to 3.10+ to remove deprecation warnings
+cmake_minimum_required (VERSION 3.8)
 
 project("GigaLearnBot")
 
@@ -12,8 +12,7 @@ list(REMOVE_ITEM GIGALEARNBOT_FILES_SRC
 add_executable(GigaLearnBot ${GIGALEARNBOT_FILES_SRC})
 
 # Define sources for the new rlbot executable
-# MODIFIED LINE: Added "src/RSVClient.cpp" to the list of sources
-add_executable(rlbot "src/rlbotmain.cpp" "src/RLBotClient.cpp" "src/RLBotClient.h" "src/RSVClient.cpp")
+add_executable(rlbot "src/rlbotmain.cpp" "src/RLBotClient.cpp" "src/RLBotClient.h")
 
 
 # Set C++ version to 20 for GigaLearnBot
