@@ -4,12 +4,13 @@
 #include <RLGymCPP/ObsBuilders/ObsBuilder.h>
 #include <RLGymCPP/ActionParsers/ActionParser.h>
 #include <GigaLearnCPP/Util/InferUnit.h>
-#include <GigaLearnCPP/Util/ModelConfig.h> 
+#include <GigaLearnCPP/Util/ModelConfig.h>
 
-#include <filesystem> 
+#include <RLGymCPP/Framework.h>
+#include <memory>
+#include <map>
 
 struct RLBotParams {
-    
     int port;
     int tickSkip;
     int actionDelay;
@@ -27,7 +28,6 @@ struct RLBotParams {
 
 class RLBotBot : public rlbot::Bot {
 public:
-    
     RLBotParams params;
 
     RLGC::Action
@@ -38,10 +38,27 @@ public:
     float prevTime = 0;
     int ticks = -1;
 
+    RLGC::GameState gs;
+    RLGC::GameState prevGs;
+
+    struct PlayerInternalState {
+        float jumpTime = 0;
+        float flipTime = 0;
+        bool isJumping = false;
+        bool isFlipping = false;
+        uint64_t lastTouchTick = 0;
+    };
+    std::map<int, PlayerInternalState> internalPlayerStates;
+    int lastTeamScores[2] = {0, 0};
+
     RLBotBot(int _index, int _team, std::string _name, const RLBotParams& params);
     ~RLBotBot();
 
     rlbot::Controller GetOutput(rlbot::GameTickPacket gameTickPacket) override;
+
+private:
+
+    void UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, float curTime);
 };
 
 namespace RLBotClient {
