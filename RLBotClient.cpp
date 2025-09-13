@@ -85,12 +85,51 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
         player.index = i;
         player.prev = prevPlayer;
 
+        
+        if (player.isSupersonic) {
+            internalState.supersonicTime += deltaTime;
+        } else {
+            internalState.supersonicTime = 0;
+        }
+        player.supersonicTime = internalState.supersonicTime;
+
+        
+        bool prevBoosted = prevPlayer ? (prevPlayer->prevAction.boost != 0) : false;
+        if (internalState.timeSpentBoosting > 0) {
+            if (!prevBoosted && internalState.timeSpentBoosting >= RLConst::BOOST_MIN_TIME) {
+                internalState.timeSpentBoosting = 0;
+            } else {
+                internalState.timeSpentBoosting += deltaTime;
+            }
+        } else {
+            if (prevBoosted) {
+                internalState.timeSpentBoosting = deltaTime;
+            }
+        }
+        player.timeSpentBoosting = internalState.timeSpentBoosting;
+
+        
+        bool prevHandbrake = prevPlayer ? (prevPlayer->prevAction.handbrake != 0) : false;
+        if (prevHandbrake) {
+            internalState.handbrakeVal += RLConst::POWERSLIDE_RISE_RATE * deltaTime;
+        } else {
+            internalState.handbrakeVal -= RLConst::POWERSLIDE_FALL_RATE * deltaTime;
+        }
+        internalState.handbrakeVal = RS_CLAMP(internalState.handbrakeVal, 0.f, 1.f);
+        player.handbrakeVal = internalState.handbrakeVal;
+
         if (player.isOnGround) {
             internalState.isJumping = false;
             internalState.isFlipping = false;
             internalState.jumpTime = 0;
             internalState.flipTime = 0;
+            internalState.hasFlipped = false;
+            internalState.airTime = 0;
+
         } else {
+            
+            internalState.airTime += deltaTime;
+
             if (internalState.isJumping) {
                 internalState.jumpTime += deltaTime;
                 if (internalState.jumpTime >= RLConst::JUMP_MAX_TIME) {
@@ -113,8 +152,11 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
             if (player.hasDoubleJumped && !prevPlayer->hasDoubleJumped && !prevPlayer->isOnGround) {
                 internalState.isFlipping = true;
                 internalState.flipTime = 0;
+                
+                internalState.hasFlipped = true;
             }
         }
+        
         
         player.isJumping = internalState.isJumping;
         player.isFlipping = internalState.isFlipping;
@@ -122,8 +164,12 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
         player.flipTime = internalState.flipTime;
         player.airTimeSinceJump = player.hasJumped && !player.isJumping ? (prevPlayer ? prevPlayer->airTimeSinceJump + deltaTime : deltaTime) : 0;
         
+        player.hasFlipped = internalState.hasFlipped;
+        player.airTime = internalState.airTime;
+        
         player.ballTouchedStep = false;
         player.ballTouchedTick = false;
+        
         if (latestTouch && latestTouch->playerIndex() == i) {
             float timeSinceTouch = curTime - latestTouch->gameSeconds();
 
