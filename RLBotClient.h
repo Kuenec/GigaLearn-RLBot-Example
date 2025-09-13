@@ -47,6 +47,13 @@ public:
         bool isJumping = false;
         bool isFlipping = false;
         uint64_t lastTouchTick = 0;
+
+        float supersonicTime = 0;
+        float timeSpentBoosting = 0;
+        float handbrakeVal = 0;
+
+        bool hasFlipped = false;
+        float airTime = 0;
     };
     std::map<int, PlayerInternalState> internalPlayerStates;
     int lastTeamScores[2] = {0, 0};
@@ -57,7 +64,6 @@ public:
     rlbot::Controller GetOutput(rlbot::GameTickPacket gameTickPacket) override;
 
 private:
-
     void UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, float curTime);
 };
 
