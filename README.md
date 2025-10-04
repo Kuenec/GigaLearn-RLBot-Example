@@ -71,7 +71,10 @@ checkpointPath = "C:\\Users\\YourUser\\GigaLearnCPP\\build\\Release\\checkpoints
 
 * **Could not connect to server?**
     * Ensure CppPythonAgent.cfg correctly points to your compiled `rlbot.exe`, and that the port numbers in `rlbotmain.cpp` match the one in `GigaLearnCPP\rlbot\port.cfg`
-
+    
+* **Event Loop Stopped?**
+   * Make sure your port matches, if problem still occurs `pip install websockets==12.0`
+   
 ### Notes
 
 * **Ball prediction:** Not supported. If your observation uses ball prediction, modify `rlbotmain.cpp` and pass a RocketSimArena to it. This is straightforward.
