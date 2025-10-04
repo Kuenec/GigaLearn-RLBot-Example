@@ -85,18 +85,16 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
         player.index = i;
         player.prev = prevPlayer;
 
-        
         if (player.isSupersonic) {
             internalState.supersonicTime += deltaTime;
         } else {
             internalState.supersonicTime = 0;
         }
         player.supersonicTime = internalState.supersonicTime;
-
         
         bool prevBoosted = prevPlayer ? (prevPlayer->prevAction.boost != 0) : false;
         if (internalState.timeSpentBoosting > 0) {
-            if (!prevBoosted && internalState.timeSpentBoosting >= RLConst::BOOST_MIN_TIME) {
+            if (!prevBoosted && internalState.timeSpentBoosting >= RLConstructor::BOOST_MIN_TIME) {
                 internalState.timeSpentBoosting = 0;
             } else {
                 internalState.timeSpentBoosting += deltaTime;
@@ -108,12 +106,11 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
         }
         player.timeSpentBoosting = internalState.timeSpentBoosting;
 
-        
         bool prevHandbrake = prevPlayer ? (prevPlayer->prevAction.handbrake != 0) : false;
         if (prevHandbrake) {
-            internalState.handbrakeVal += RLConst::POWERSLIDE_RISE_RATE * deltaTime;
+            internalState.handbrakeVal += RLConstructor::POWERSLIDE_RISE_RATE * deltaTime;
         } else {
-            internalState.handbrakeVal -= RLConst::POWERSLIDE_FALL_RATE * deltaTime;
+            internalState.handbrakeVal -= RLConstructor::POWERSLIDE_FALL_RATE * deltaTime;
         }
         internalState.handbrakeVal = RS_CLAMP(internalState.handbrakeVal, 0.f, 1.f);
         player.handbrakeVal = internalState.handbrakeVal;
@@ -125,22 +122,33 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
             internalState.flipTime = 0;
             internalState.hasFlipped = false;
             internalState.airTime = 0;
-
+            internalState.autoFlipTimer = 0;
+            internalState.autoFlipAttacking = false;
         } else {
-            
             internalState.airTime += deltaTime;
 
             if (internalState.isJumping) {
                 internalState.jumpTime += deltaTime;
-                if (internalState.jumpTime >= RLConst::JUMP_MAX_TIME) {
+                if (internalState.jumpTime >= RLConstructor::JUMP_MAX_TIME) {
                     internalState.isJumping = false;
                 }
             }
             if (internalState.isFlipping) {
                 internalState.flipTime += deltaTime;
-                if (internalState.flipTime >= RLConst::FLIP_TORQUE_TIME) {
+                if (internalState.flipTime >= RLConstructor::FLIP_TORQUE_TIME) {
                     internalState.isFlipping = false;
                 }
+            }
+
+            bool shouldAutoFlip = (player.rotMat.up.z < RLConstructor::CAR_AUTOFLIP_NORMZ_THRESH) && (abs(player.rotMat.forward.z) < 0.9);
+            if (shouldAutoFlip) {
+                internalState.autoFlipTimer += deltaTime;
+                if (internalState.autoFlipTimer > RLConstructor::CAR_AUTOFLIP_TIME) {
+                    internalState.autoFlipAttacking = true;
+                }
+            } else {
+                internalState.autoFlipTimer = 0;
+                internalState.autoFlipAttacking = false;
             }
         }
 
@@ -152,11 +160,10 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
             if (player.hasDoubleJumped && !prevPlayer->hasDoubleJumped && !prevPlayer->isOnGround) {
                 internalState.isFlipping = true;
                 internalState.flipTime = 0;
-                
+                internalState.isJumping = false;
                 internalState.hasFlipped = true;
             }
         }
-        
         
         player.isJumping = internalState.isJumping;
         player.isFlipping = internalState.isFlipping;
@@ -172,12 +179,10 @@ void RLBotBot::UpdateGameState(rlbot::GameTickPacket& packet, float deltaTime, f
         
         if (latestTouch && latestTouch->playerIndex() == i) {
             float timeSinceTouch = curTime - latestTouch->gameSeconds();
-
             if (timeSinceTouch < (params.tickSkip * CommonValues::TICK_TIME) + 0.01f) {
                 player.ballTouchedStep = true;
                 gs.lastTouchCarID = player.carId;
             }
-
             if (timeSinceTouch < deltaTime + 0.01f) {
                  player.ballTouchedTick = true;
             }
